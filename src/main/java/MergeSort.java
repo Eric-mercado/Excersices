@@ -1,103 +1,68 @@
-public class MergeSort
-{
-    // Merges two subarrays of arr[].
-    // First subarray is arr[left..medium]
-    // Second subarray is arr[medium+1..rigth]
-    void merge(int arr[], int left, int medium, int rigth)
-    {
-        // Find sizes of two subarrays to be merged
-        int size1 = medium - left + 1;
-        int size2 = rigth - medium;
+/**
+ * im adding this class in a separate file sonce it require bit more complexity that the other two sorting methods.
+ *
+ * and it could required few more methods that the other so  ..  in order to keep it simple i move it to its own file.
+ */
+public class MergeSort {
 
-        /* Create temp arrays */
-        int LeftArray[] = new int [size1];
-        int RightArray[] = new int [size2];
+    private int[] array;
+    private int[] tempMergArr;
+    private int length;
 
-        /*Copy data to temp arrays*/
-        for (int i=0; i<size1; ++i)
-            LeftArray[i] = arr[left + i];
-        for (int j=0; j<size2; ++j)
-            RightArray[j] = arr[medium + 1+ j];
+    public static void main(String a[]){
 
+        int[] inputArr = {45,23,11,89,77,98,4,28,65,43};
+        MergeSort mms = new MergeSort();
+        mms.sort(inputArr);
+        for(int i:inputArr){
+            System.out.print(i);
+            System.out.print(" ");
+        }
+    }
 
-        /* Merge the temp arrays */
+    public void sort(int inputArr[]) {
+        this.array = inputArr;
+        this.length = inputArr.length;
+        this.tempMergArr = new int[length];
+        doMergeSort(0, length - 1);
+    }
 
-        // Initial indexes of first and second subarrays
-        int i = 0, j = 0;
+    private void doMergeSort(int lowerIndex, int higherIndex) {
 
-        // Initial index of merged subarry array
-        int k = left;
-        while (i < size1 && j < size2)
-        {
-            if (LeftArray[i] <= RightArray[j])
-            {
-                arr[k] = LeftArray[i];
+        if (lowerIndex < higherIndex) {
+            int middle = lowerIndex + (higherIndex - lowerIndex) / 2;
+            // Below step sorts the left side of the array
+            doMergeSort(lowerIndex, middle);
+            // Below step sorts the right side of the array
+            doMergeSort(middle + 1, higherIndex);
+            // Now merge both sides
+            mergeParts(lowerIndex, middle, higherIndex);
+        }
+    }
+
+    private void mergeParts(int lowerIndex, int middle, int higherIndex) {
+
+        for (int i = lowerIndex; i <= higherIndex; i++) {
+            tempMergArr[i] = array[i];
+        }
+        int i = lowerIndex;
+        int j = middle + 1;
+        int k = lowerIndex;
+        while (i <= middle && j <= higherIndex) {
+            if (tempMergArr[i] <= tempMergArr[j]) {
+                array[k] = tempMergArr[i];
                 i++;
-            }
-            else
-            {
-                arr[k] = RightArray[j];
+            } else {
+                array[k] = tempMergArr[j];
                 j++;
             }
             k++;
         }
-
-        /* Copy remaining elements of LeftArray[] if any */
-        while (i < size1)
-        {
-            arr[k] = LeftArray[i];
+        while (i <= middle) {
+            array[k] = tempMergArr[i];
+            k++;
             i++;
-            k++;
         }
 
-        /* Copy remaining elements of RightArray[] if any */
-        while (j < size2)
-        {
-            arr[k] = RightArray[j];
-            j++;
-            k++;
-        }
-    }
-
-    // Main function that sorts arr[l..r] using
-    // merge()
-    void sort(int arr[], int l, int r)
-    {
-        if (l < r)
-        {
-            // Find the middle point
-            int m = (l+r)/2;
-
-            // Sort first and second halves
-            sort(arr, l, m);
-            sort(arr , m+1, r);
-
-            // Merge the sorted halves
-            merge(arr, l, m, r);
-        }
-    }
-
-    /* A utility function to print array of size n */
-    static void printArray(int arr[])
-    {
-        int n = arr.length;
-        for (int i=0; i<n; ++i)
-            System.out.print(arr[i] + " ");
-        System.out.println();
-    }
-
-    // Driver method
-    public static void main(String args[])
-    {
-        int arr[] = {12, 11, 13, 5, 6, 7};
-
-        System.out.println("Given Array");
-        printArray(arr);
-
-        MergeSort ob = new MergeSort();
-        ob.sort(arr, 0, arr.length-1);
-
-        System.out.println("\nSorted array");
-        printArray(arr);
     }
 }
