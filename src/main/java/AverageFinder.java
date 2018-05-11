@@ -1,54 +1,88 @@
 import java.util.*;
-
 public class AverageFinder {
 
    public static void main(String[] args){
 
-       List<Integer> mySetNumber = new ArrayList<>(Arrays.asList(1,7,9,11,15,29));
+      ArrayList<Integer> mySetNumber = new ArrayList<>(Arrays.asList(1,7,9,11,15,29));
+       ArrayList<Integer> mySecondSetNumber = new ArrayList<>(Arrays.asList(47, 14, 30, 19, 30, 4, 32, 32, 15, 2, 6, 24));
 
-       System.out.println(findAverage(mySetNumber)); 
+     //  System.out.println(findAverage(mySetNumber));
+       System.out.println(findAverage(mySecondSetNumber));
    }
 
-    private static ArrayList<List<Integer>> findAverage(List<Integer> mySetNumber) {
+    private static ArrayList<ArrayList<Integer>> findAverage(ArrayList<Integer> mySetNumber) {
 
        Collections.sort(mySetNumber);
 
        int half = mySetNumber.size()/2;
-       int averageNumber = getAverage(mySetNumber);
-        ArrayList<List<Integer>> result = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
 
        for(int i = 2 ; i <= half; i++){
+           boolean found = false;
+           if(i <= 2 ) {
+               result = fillArrays(i, mySetNumber, new ArrayList<>());
 
-          result = fillArrays(i, mySetNumber);
+               if (!result.isEmpty()) {
+                   break;
+               }
+           } else{
+               Iterator<Integer> mySetIterator = mySetNumber.iterator();
 
-           if(!fillArrays(i, mySetNumber).isEmpty()){
-               break;
+               while(mySetIterator.hasNext()){
+
+                   ArrayList increasingNumbers = new ArrayList();
+                   while(increasingNumbers.size() <= i-3){
+                       increasingNumbers.add(mySetIterator.next());
+                   }
+                   result = fillArrays(i, mySetNumber, increasingNumbers);
+                   if (!result.isEmpty()) {
+                       found = true;
+                       break;
+                   }
+               }
+               if(found) break;
            }
        }
        return result;
    }
 
 
-    private static int getAverage(List<Integer> mySetNumber) {
-       int counter = 0;
+    private static double getAverage(ArrayList<Integer> mySetNumber) {
+       double counter = 0;
        for(Integer thisInt: mySetNumber){
            counter += thisInt;
        }
 
-       return counter / mySetNumber.size();
+       if((counter / mySetNumber.size()) % 1 ==0){
+           return (int) counter / mySetNumber.size();
+       } else{
+           return 0;
+       }
     }
 
-    static ArrayList<List<Integer>> fillArrays(int firstBlockSize, List<Integer> input){
+    static ArrayList<ArrayList<Integer>> fillArrays(int firstBlockSize, ArrayList<Integer> input, List<Integer>inputIndex){
 
-        LinkedList<Integer> tempFirstBlock = new LinkedList<>();
-        int inputAverage =  getAverage(input);
+        double inputAverage =  getAverage(input);
+
+        ArrayList<Integer> tempFirstBlock = new ArrayList<>();
+
         Iterator<Integer> inputIterator = input.iterator();
+
+
+
+        //dump  posible numbers charged by the for loop calling this method
+        if(inputIndex != null){
+           for(int i: inputIndex){
+               tempFirstBlock.add(i);
+           }
+        }
 
         while(inputIterator.hasNext() &&  tempFirstBlock.size() <= firstBlockSize - 1){
 
             int currentNumber = inputIterator.next();
-            int lookUpValue = inputAverage * firstBlockSize;
-            int lookUpIndex = Collections.binarySearch(input, lookUpValue -currentNumber);
+            int currentsSum = tempFirstBlock.stream().mapToInt(Integer::intValue).sum();
+            int lookUpValue = (int)inputAverage * firstBlockSize;
+            int lookUpIndex = Collections.binarySearch(input, lookUpValue - currentsSum -currentNumber);
 
             if(lookUpIndex >0){
                 tempFirstBlock.add(currentNumber);
@@ -56,18 +90,27 @@ public class AverageFinder {
             }
         }
 
-        List<Integer> secondBlock = cleanSecondBlock(tempFirstBlock, input);
+        ArrayList<Integer> secondBlock = new ArrayList<>();
 
-        return secondBlock.size()==0? null: new ArrayList<List<Integer>>(Arrays.asList(tempFirstBlock, secondBlock));
+        if(tempFirstBlock.size() > inputIndex.size()){
+            secondBlock = cleanSecondBlock(tempFirstBlock, input);
+        }
+
+
+        return secondBlock.isEmpty()?
+                new ArrayList<>():
+                new ArrayList<ArrayList<Integer>>(Arrays.asList(tempFirstBlock, secondBlock));
 
     }
 
-    private static List<Integer> cleanSecondBlock(List<Integer> firstBlock, List<Integer> input) {
+    private static ArrayList<Integer> cleanSecondBlock(ArrayList<Integer> firstBlock, ArrayList<Integer> input) {
+
+       ArrayList<Integer> inputCopy = new ArrayList<>(input);
 
       for(Integer currentNumber: firstBlock){
-          input.remove(currentNumber);
+          inputCopy.remove(currentNumber);
       }
 
-      return input;
+      return inputCopy;
     }
 }
